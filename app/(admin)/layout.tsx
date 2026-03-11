@@ -1,34 +1,32 @@
-import type { Metadata } from 'next'
-import { Ubuntu, Geist_Mono } from 'next/font/google'
-import '../globals.css'
+import type { Metadata } from 'next';
+import { Ubuntu, Geist_Mono } from 'next/font/google';
+import '../globals.css';
 
 const ubuntu = Ubuntu({
   variable: '--font-ubuntu',
   subsets: ['latin'],
   weight: ['300', '400', '500', '700'],
   display: 'swap',
-})
+});
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
-})
+});
 
 export const metadata: Metadata = {
   title: 'Gig-store Admin',
   description: 'Administration du magasin Gig-store',
-}
+};
 
 export default function AdminLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="fr" className={`${ubuntu.variable} ${geistMono.variable}`}>
-      <body
-        className="antialiased"
-      >
+      <body className="antialiased">
         <div className="flex min-h-screen bg-slate-50">
           {/* Sidebar Placeholder */}
           <aside className="w-64 bg-white border-r shadow-sm hidden md:block">
@@ -43,12 +41,11 @@ export default function AdminLayout({
               </ul>
             </nav>
           </aside>
-          
           <main className="flex-1 p-8">
             {children}
           </main>
         </div>
       </body>
     </html>
-  )
+  );
 }
