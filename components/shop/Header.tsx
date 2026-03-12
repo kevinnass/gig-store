@@ -1,8 +1,10 @@
 'use client'
 
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ShoppingBag, User, Home, Grid, Mail } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { useCart } from '@/store/cart'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/ModeToggle'
@@ -34,24 +36,32 @@ export default function Header() {
 
         {/* Navigation - Desktop */}
         <nav className="hidden md:flex items-center space-x-8 text-sm font-bold uppercase tracking-widest ml-auto mr-8">
-          <Link 
-            href="/" 
-            className={`transition-colors pb-1 border-b-2 ${pathname === '/' ? 'text-primary border-primary' : 'text-slate-500 border-transparent hover:text-primary'}`}
-          >
-            Accueil
-          </Link>
-          <Link 
-            href="/shop" 
-            className={`transition-colors pb-1 border-b-2 ${pathname.startsWith('/shop') || pathname.startsWith('/category') ? 'text-primary border-primary' : 'text-slate-500 border-transparent hover:text-primary'}`}
-          >
-            Boutique
-          </Link>
-          <Link 
-            href="/contact" 
-            className={`transition-colors pb-1 border-b-2 ${pathname === '/contact' ? 'text-primary border-primary' : 'text-slate-500 border-transparent hover:text-primary'}`}
-          >
-            Contacts
-          </Link>
+          {[
+            { name: 'Accueil', path: '/' },
+            { name: 'Boutique', path: '/shop' },
+            { name: 'Contact', path: '/contact' },
+          ].map((item) => {
+            const isActive = item.path === '/' 
+              ? pathname === '/' 
+              : pathname.startsWith(item.path)
+
+            return (
+              <Link 
+                key={item.path}
+                href={item.path} 
+                className={`relative transition-colors py-1 ${isActive ? 'text-black dark:text-white' : 'text-slate-400 hover:text-black dark:hover:text-white'}`}
+              >
+                {item.name}
+                {isActive && (
+                  <motion.div 
+                    layoutId="nav-underline"
+                    className="absolute -bottom-1 left-0 right-0 h-[2px] bg-black dark:bg-white"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </Link>
+            )
+          })}
         </nav>
 
         {/* Icons */}
@@ -76,42 +86,66 @@ export default function Header() {
           </div>
           
           <div className="relative">
-            <SearchBar />
+            <Suspense fallback={<div className="w-10 h-10" />}>
+              <SearchBar />
+            </Suspense>
           </div>
           
-          <Button variant="ghost" size="icon" className="inline-flex">
-            <User className="h-5 w-5" />
-          </Button>
+          <Link href="/login">
+            <Button variant="ghost" size="icon" className="inline-flex">
+              <User className="h-5 w-5" />
+            </Button>
+          </Link>
           <ModeToggle />
         </div>
       </div>
     </header>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-950 border-t flex items-center justify-around h-16 pb-safe safe-area-padding">
-        <Link href="/" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname === '/' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}>
-          <Home className="h-5 w-5" />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Accueil</span>
-        </Link>
-        <Link href="/shop" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname.startsWith('/shop') || pathname.startsWith('/category') ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}>
-          <Grid className="h-5 w-5" />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Boutique</span>
-        </Link>
-        <Link href="/cart" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname === '/cart' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}>
-          <div className="relative">
-            <ShoppingBag className="h-5 w-5" />
-            {totalItems > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-black text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
-                {totalItems}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-950 border-t flex items-center justify-around h-16 pb-safe safe-area-padding shadow-[0_-1px_10px_rgba(0,0,0,0.05)]">
+        {[
+          { name: 'Accueil', path: '/', icon: Home },
+          { name: 'Boutique', path: '/shop', icon: Grid },
+          { name: 'Panier', path: '/cart', icon: ShoppingBag, count: totalItems },
+          { name: 'Contact', path: '/contact', icon: Mail },
+        ].map((item) => {
+          const isActive = item.path === '/' 
+            ? pathname === '/' 
+            : pathname.startsWith(item.path)
+          const Icon = item.icon
+
+          return (
+            <Link 
+              key={item.path}
+              href={item.path} 
+              className={`relative flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-300 ${isActive ? 'text-black dark:text-white' : 'text-slate-400'}`}
+            >
+              <motion.div
+                initial={false}
+                animate={isActive ? { scale: 1.2, y: -2 } : { scale: 1, y: 0 }}
+                whileTap={{ scale: 0.9 }}
+                className="relative"
+              >
+                <Icon className="h-5 w-5" />
+                {item.count !== undefined && item.count > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-black dark:bg-white text-white dark:text-black text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
+                    {item.count}
+                  </span>
+                )}
+              </motion.div>
+              <span className={`text-[9px] font-bold uppercase tracking-wider transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                {item.name}
               </span>
-            )}
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-wider">Panier</span>
-        </Link>
-        <Link href="/contact" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname === '/contact' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}>
-          <Mail className="h-5 w-5" />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Contact</span>
-        </Link>
+              {isActive && (
+                <motion.div 
+                  layoutId="mobile-nav-indicator"
+                  className="absolute top-0 w-8 h-[2px] bg-black dark:bg-white"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+            </Link>
+          )
+        })}
       </nav>
     </>
   )

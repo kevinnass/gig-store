@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { SortFilter } from '@/components/shop/SortFilter'
@@ -89,7 +90,9 @@ export default async function ShopPage(props: {
             </Link>
           ))}
         </div>
-        <SortFilter />
+        <Suspense fallback={<div className="h-10 w-32" />}>
+          <SortFilter />
+        </Suspense>
       </div>
 
       {searchQuery && (
