@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${ubuntu.variable} ${geistMono.variable}`}>
+    <html lang="fr" className={`${ubuntu.variable} ${geistMono.variable}`} suppressHydrationWarning>
       <body
         className="antialiased selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black min-h-screen flex flex-col"
       >

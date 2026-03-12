@@ -1,8 +1,15 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { ArrowRight, ChevronDown } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient()
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('*')
+    .order('name')
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -48,13 +55,8 @@ export default function HomePage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { name: 'Sacs & Cuir', slug: 'sacs', color: '#f8fafc', bgUrl: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=1000&auto=format&fit=crop' },
-            { name: 'Chaussures', slug: 'chaussures', color: '#e2e8f0', bgUrl: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=1000&auto=format&fit=crop' },
-            { name: 'Prêt-à-porter', slug: 'habits', color: '#cbd5e1', bgUrl: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=1000&auto=format&fit=crop' },
-            { name: 'Accessoires', slug: 'accessoires', color: '#94a3b8', bgUrl: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1000&auto=format&fit=crop' }
-          ].map((cat) => (
-            <Link key={cat.slug} href={`/shop?category=${cat.slug}`} className="group relative aspect-[4/5] overflow-hidden bg-slate-900">
+          {categories?.map((cat) => (
+            <Link key={cat.id} href={`/shop?category=${cat.slug}`} className="group relative aspect-[4/5] overflow-hidden bg-slate-900">
                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-500 z-10" />
                <div className="absolute inset-0 flex flex-col justify-end p-6 z-20">
                   <h3 className="text-xl font-bold text-white uppercase tracking-tighter transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
@@ -62,12 +64,23 @@ export default function HomePage() {
                   </h3>
                   <div className="w-8 h-0.5 bg-white mt-4 opacity-0 group-hover:opacity-100 transform origin-left scale-x-0 group-hover:scale-x-100 transition-all duration-500 delay-100" />
                </div>
-               <div 
-                  className="w-full h-full bg-cover bg-center transition-transform duration-1000 group-hover:scale-110 opacity-80 group-hover:opacity-100" 
-                  style={{ backgroundImage: `url('${cat.bgUrl}')`, backgroundColor: cat.color }} 
-               />
+               {cat.image_url ? (
+                 <div 
+                    className="w-full h-full bg-cover bg-center transition-transform duration-1000 group-hover:scale-110 opacity-80 group-hover:opacity-100" 
+                    style={{ backgroundImage: `url('${cat.image_url}')` }} 
+                 />
+               ) : (
+                 <div className="w-full h-full bg-slate-800 flex items-center justify-center opacity-50">
+                   <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">{cat.name}</span>
+                 </div>
+               )}
             </Link>
           ))}
+          {(!categories || categories.length === 0) && (
+            <div className="col-span-full py-12 text-center text-muted-foreground">
+              Aucune catégorie trouvée.
+            </div>
+          )}
         </div>
       </section>
     </div>

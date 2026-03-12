@@ -5,14 +5,26 @@ export const metadata: Metadata = {
   description: 'Administration du magasin Gig-store',
 };
 
-export default function AdminLayout({
+import { AdminSidebar } from '@/components/admin/AdminSidebar'
+import { headers } from 'next/headers'
+
+export default async function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers()
+  const pathname = headersList.get('x-invoke-path') || ''
+  const isLoginPage = pathname === '/admin/login'
+
+  if (isLoginPage) {
+    return <>{children}</>
+  }
+
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950">
-      <main className="flex-1">
+      <AdminSidebar />
+      <main className="flex-1 overflow-y-auto">
         {children}
       </main>
     </div>

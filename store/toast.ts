@@ -1,20 +1,24 @@
 import { create } from 'zustand'
 
+type ToastType = 'success' | 'error' | 'info'
+
 interface ToastState {
   isOpen: boolean
   message: string
-  showToast: (message: string) => void
+  type: ToastType
+  showToast: (message: string, type?: ToastType) => void
   hideToast: () => void
 }
 
 export const useToastStore = create<ToastState>((set) => ({
   isOpen: false,
   message: '',
-  showToast: (message) => {
-    set({ isOpen: true, message })
+  type: 'success',
+  showToast: (message, type = 'success') => {
+    set({ isOpen: true, message, type })
     setTimeout(() => {
       set({ isOpen: false })
-    }, 2000)
+    }, 3000)
   },
   hideToast: () => set({ isOpen: false }),
 }))
