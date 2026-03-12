@@ -40,7 +40,7 @@ export default function HomePage() {
         <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
           <div>
             <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-slate-500 mb-3">Parcourir</h2>
-            <p className="text-3xl md:text-5xl font-bold tracking-tighter uppercase">Nos Nouveautés</p>
+            <p className="text-3xl md:text-5xl font-bold tracking-tighter uppercase">Nos Catégories</p>
           </div>
           <Link href="/shop" className="text-sm font-bold uppercase tracking-widest border-b-[1.5px] border-slate-900 dark:border-white pb-1 hover:text-slate-500 hover:border-slate-500 transition-all">
             Voir tout
@@ -54,7 +54,7 @@ export default function HomePage() {
             { name: 'Prêt-à-porter', slug: 'habits', color: '#cbd5e1', bgUrl: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?q=80&w=1000&auto=format&fit=crop' },
             { name: 'Accessoires', slug: 'accessoires', color: '#94a3b8', bgUrl: 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1000&auto=format&fit=crop' }
           ].map((cat) => (
-            <Link key={cat.slug} href={`/category/${cat.slug}`} className="group relative aspect-[4/5] overflow-hidden bg-slate-900">
+            <Link key={cat.slug} href={`/shop?category=${cat.slug}`} className="group relative aspect-[4/5] overflow-hidden bg-slate-900">
                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors duration-500 z-10" />
                <div className="absolute inset-0 flex flex-col justify-end p-6 z-20">
                   <h3 className="text-xl font-bold text-white uppercase tracking-tighter transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">

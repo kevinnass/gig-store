@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Ubuntu, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider";
+import { ToastProvider } from "@/components/ui/Toast";
 
 
 const ubuntu = Ubuntu({
@@ -28,13 +29,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className={`${ubuntu.variable} ${geistMono.variable}`}>
-      <body className="antialiased min-h-screen flex flex-col text-slate-900 dark:text-slate-50">
+      <body
+        className="antialiased selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black min-h-screen flex flex-col"
+      >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
           disableTransitionOnChange
         >
+          <ToastProvider />
           {children}
         </ThemeProvider>
       </body>

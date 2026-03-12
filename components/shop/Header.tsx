@@ -2,10 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, Search, ShoppingBag, User, Home, Grid } from 'lucide-react'
+import { ShoppingBag, User, Home, Grid, Mail } from 'lucide-react'
 import { useCart } from '@/store/cart'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/ModeToggle'
+import { CartPopover } from '@/components/shop/CartPopover'
+import { SearchBar } from '@/components/shop/SearchBar'
 
 export default function Header() {
   const pathname = usePathname()
@@ -42,7 +44,7 @@ export default function Header() {
             href="/shop" 
             className={`transition-colors pb-1 border-b-2 ${pathname.startsWith('/shop') || pathname.startsWith('/category') ? 'text-primary border-primary' : 'text-slate-500 border-transparent hover:text-primary'}`}
           >
-            Produits
+            Boutique
           </Link>
           <Link 
             href="/contact" 
@@ -54,20 +56,30 @@ export default function Header() {
 
         {/* Icons */}
         <div className="flex-1 md:flex-none flex items-center justify-end space-x-2 sm:space-x-4">
-          <Link href="/cart" className="hidden md:block">
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingBag className="h-5 w-5" />
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                  {totalItems}
-                </span>
-              )}
-            </Button>
-          </Link>
-          <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
-            <Search className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="hidden sm:inline-flex">
+          {/* Cart Icon with Popover on Desktop */}
+          <div className="hidden md:block relative group">
+            <Link href="/cart">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingBag className="h-5 w-5" />
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                    {totalItems}
+                  </span>
+                )}
+              </Button>
+            </Link>
+            
+            {/* Popover content (visible on group hover) */}
+            <div className="absolute top-full right-0 mt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <CartPopover />
+            </div>
+          </div>
+          
+          <div className="relative">
+            <SearchBar />
+          </div>
+          
+          <Button variant="ghost" size="icon" className="inline-flex">
             <User className="h-5 w-5" />
           </Button>
           <ModeToggle />
@@ -83,7 +95,7 @@ export default function Header() {
         </Link>
         <Link href="/shop" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname.startsWith('/shop') || pathname.startsWith('/category') ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}>
           <Grid className="h-5 w-5" />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Produits</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider">Boutique</span>
         </Link>
         <Link href="/cart" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname === '/cart' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}>
           <div className="relative">
@@ -97,8 +109,8 @@ export default function Header() {
           <span className="text-[10px] font-bold uppercase tracking-wider">Panier</span>
         </Link>
         <Link href="/contact" className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${pathname === '/contact' ? 'text-primary' : 'text-slate-400 hover:text-primary'}`}>
-          <User className="h-5 w-5" />
-          <span className="text-[10px] font-bold uppercase tracking-wider">Profil</span>
+          <Mail className="h-5 w-5" />
+          <span className="text-[10px] font-bold uppercase tracking-wider">Contact</span>
         </Link>
       </nav>
     </>
