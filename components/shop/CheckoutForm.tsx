@@ -119,7 +119,7 @@ export default function CheckoutForm() {
         >
           {/* Section Header */}
           <div className="space-y-4">
-            <p className="text-slate-500 text- max-w-md leading-relaxed">
+            <p className="text-slate-500 text-2xl max-w-m leading-relaxed">
               Veuillez renseigner vos informations pour le suivi et la livraison de votre commande.
             </p>
           </div>
@@ -196,7 +196,7 @@ export default function CheckoutForm() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="lg:sticky lg:top-32 space-y-10 bg-black text-white dark:bg-white dark:text-black p-8 md:p-10"
+          className="lg:sticky lg:top-32 space-y-10 bg- border border-black dark:border-white text-black dark:bg-black dark:text-white p-8 md:p-10"
         >
           <div className="space-y-6">
             <h2 className="text-xl font-bold uppercase tracking-widest border-b border-white/20 dark:border-black/10 pb-6 flex justify-between items-center">
