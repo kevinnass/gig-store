@@ -1,22 +1,32 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useCart } from '@/store/cart'
 import Link from 'next/link'
 import { ArrowLeft, Minus, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 export default function CartPage() {
+  const [mounted, setMounted] = useState(false)
   const items = useCart((state) => state.items)
   const removeItem = useCart((state) => state.removeItem)
   const updateQuantity = useCart((state) => state.updateQuantity)
   const totalPrice = useCart((state) => state.totalPrice())
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return <div className="container mx-auto px-4 py-24 md:py-32 min-h-[60vh]" />
+  }
 
   if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-24 md:py-32 flex flex-col items-center justify-center min-h-[60vh]">
         <h1 className="text-3xl md:text-5xl font-bold tracking-tighter uppercase mb-6 text-center">Votre panier est vide</h1>
         <p className="text-muted-foreground mb-8 text-center max-w-md">
-          On dirait que vous n'avez pas encore trouvé votre bonheur. Découvrez nos nouveautés.
+          On dirait que vous n&apos;avez pas encore trouvé votre bonheur. Découvrez nos nouveautés.
         </p>
         <Link href="/shop">
           <Button className="h-14 px-8 rounded-none font-bold uppercase tracking-[0.2em] text-xs bg-black text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200">
@@ -131,7 +141,7 @@ export default function CartPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Livraison</span>
-                <span className="font-medium">Calculé à l'étape suivante</span>
+                <span className="font-medium">Calculé à l&apos;étape suivante</span>
               </div>
             </div>
 

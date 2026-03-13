@@ -5,12 +5,19 @@ import Link from 'next/link'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-export function CartPopover() {
+import { useState, useEffect } from 'react'
+
+export default function CartPopover() {
+  const [mounted, setMounted] = useState(false)
   const items = useCart((state) => state.items)
   const removeItem = useCart((state) => state.removeItem)
   const totalPrice = useCart((state) => state.totalPrice())
 
-  if (items.length === 0) {
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted || items.length === 0) {
     return (
       <div className="p-6 text-center w-72">
         <p className="text-sm text-slate-500 font-medium">Votre panier est vide.</p>

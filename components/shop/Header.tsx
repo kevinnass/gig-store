@@ -5,15 +5,21 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ShoppingBag, User, Home, Grid, Mail } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import { useCart } from '@/store/cart'
 import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/ModeToggle'
-import { CartPopover } from '@/components/shop/CartPopover'
+import CartPopover from '@/components/shop/CartPopover'
 import { SearchBar } from '@/components/shop/SearchBar'
 
 export default function Header() {
   const pathname = usePathname()
+  const [mounted, setMounted] = useState(false)
   const totalItems = useCart((state) => state.totalItems())
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <>
@@ -71,7 +77,7 @@ export default function Header() {
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingBag className="h-5 w-5" />
-                {totalItems > 0 && (
+                {mounted && totalItems > 0 && (
                   <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                     {totalItems}
                   </span>
@@ -127,7 +133,7 @@ export default function Header() {
                 className="relative"
               >
                 <Icon className="h-5 w-5" />
-                {item.count !== undefined && item.count > 0 && (
+                {mounted && item.count !== undefined && item.count > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 bg-black dark:bg-white text-white dark:text-black text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
                     {item.count}
                   </span>
