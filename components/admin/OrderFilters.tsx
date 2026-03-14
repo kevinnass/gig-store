@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
-import { Filter, SlidersHorizontal, PackageX } from 'lucide-react'
+import { SlidersHorizontal, CreditCard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Select,
@@ -13,24 +13,22 @@ import {
 } from '@/components/ui/select'
 import { Badge } from '@/components/ui/badge'
 
-interface Category {
-  id: string
-  name: string
-}
+const ORDER_STATUSES = [
+  { value: 'pending', label: 'En attente' },
+  { value: 'paid', label: 'Payé' },
+  { value: 'shipped', label: 'Expédié' },
+  { value: 'delivered', label: 'Livré' },
+  { value: 'cancelled', label: 'Annulé' },
+]
 
-interface InventoryFiltersProps {
-  categories: Category[]
-}
-
-export function InventoryFilters({ categories }: InventoryFiltersProps) {
+export function OrderFilters() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const currentCategory = searchParams.get('category') || ''
-  const currentStock = searchParams.get('stock') || ''
+  const currentStatus = searchParams.get('status') || ''
 
-  const activeFiltersCount = [currentCategory, currentStock].filter(Boolean).length
+  const activeFiltersCount = [currentStatus].filter(Boolean).length
 
   const updateParam = useCallback(
     (key: string, value: string) => {
@@ -40,8 +38,6 @@ export function InventoryFilters({ categories }: InventoryFiltersProps) {
       } else {
         params.delete(key)
       }
-      // Reset page quand filtre change
-      params.delete('page')
       router.push(`${pathname}?${params.toString()}`)
     },
     [pathname, router, searchParams]
@@ -49,8 +45,7 @@ export function InventoryFilters({ categories }: InventoryFiltersProps) {
 
   function clearFilters() {
     const params = new URLSearchParams(searchParams.toString())
-    params.delete('category')
-    params.delete('stock')
+    params.delete('status')
     router.push(`${pathname}?${params.toString()}`)
   }
 
@@ -66,43 +61,24 @@ export function InventoryFilters({ categories }: InventoryFiltersProps) {
         )}
       </div>
 
-      {/* Filtre par catégorie */}
       <Select
-        value={currentCategory || 'all'}
-        onValueChange={(val) => updateParam('category', val)}
+        value={currentStatus || 'all'}
+        onValueChange={(val) => updateParam('status', val)}
       >
         <SelectTrigger className="h-9 w-[220px] text-sm">
-          <Filter className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-          <SelectValue placeholder="Catégorie" />
+          <CreditCard className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
+          <SelectValue placeholder="Statut paiement" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">Toutes les catégories</SelectItem>
-          {categories.map((cat) => (
-            <SelectItem key={cat.id} value={cat.id}>
-              {cat.name}
+          <SelectItem value="all">Tous les statuts</SelectItem>
+          {ORDER_STATUSES.map((status) => (
+            <SelectItem key={status.value} value={status.value}>
+              {status.label}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
 
-      {/* Filtre par stock */}
-      <Select
-        value={currentStock || 'all'}
-        onValueChange={(val) => updateParam('stock', val)}
-      >
-        <SelectTrigger className="h-9 w-[180px] text-sm">
-          <PackageX className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
-          <SelectValue placeholder="Stock" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tout le stock</SelectItem>
-          <SelectItem value="out">Rupture de stock</SelectItem>
-          <SelectItem value="low">Stock faible (≤5)</SelectItem>
-          <SelectItem value="ok">En stock</SelectItem>
-        </SelectContent>
-      </Select>
-
-      {/* Bouton reset */}
       {activeFiltersCount > 0 && (
         <Button
           variant="ghost"

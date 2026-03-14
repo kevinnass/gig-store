@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sendOrderEmail } from '@/lib/mail'
 
 export type OrderData = {
   customer_name: string
@@ -23,6 +24,8 @@ export type OrderData = {
 export async function createOrder(data: OrderData) {
   const supabase = await createClient()
 
+  console.log('Creating order with data:', data)
+
   // 1. Créer la commande
   const { data: order, error: orderError } = await supabase
     .from('orders')
@@ -40,9 +43,11 @@ export async function createOrder(data: OrderData) {
     .single()
 
   if (orderError) {
-    console.error('Error creating order:', orderError)
+    console.error('Error creating order in Supabase:', orderError)
     return { error: orderError.message }
   }
+  
+  console.log('Order created successfully:', order)
 
   // 2. Créer les articles de la commande
   const orderItems = data.items.map(item => ({
@@ -79,8 +84,112 @@ export async function createOrder(data: OrderData) {
     }
   }
 
+  // 4. Récupérer les détails pour l'email
+  const { data: fullItems } = await supabase
+    .from('order_items')
+    .select(`
+      quantity,
+      price_at_purchase,
+      product_variants (
+        size,
+        color,
+        products (
+          name
+        )
+      )
+    `)
+    .eq('order_id', order.id)
+
+  const emailItems = (fullItems || []).map((item: any) => ({
+    name: item.product_variants?.products?.name || 'Produit',
+    quantity: item.quantity,
+    price: item.price_at_purchase,
+    variantInfo: [item.product_variants?.size, item.product_variants?.color].filter(Boolean).join(' / ')
+  }))
+
+  // 5. Envoyer l'email de confirmation
+  try {
+    await sendOrderEmail({
+      orderId: order.id,
+      customerEmail: order.customer_email,
+      status: order.status,
+      customerName: data.customer_name,
+      totalAmount: order.total_amount,
+      items: emailItems
+    })
+  } catch (err) {
+    console.error('Failed to send confirmation email:', err)
+  }
+
   revalidatePath('/admin/orders')
   revalidatePath('/admin')
   
   return { success: true, orderId: order.id }
+}
+
+export async function updateOrderStatus(orderId: string, status: string) {
+  const supabase = await createClient()
+
+  // 1. Mettre à jour le statut
+  const { error } = await supabase
+    .from('orders')
+    .update({ status })
+    .eq('id', orderId)
+
+  if (error) {
+    console.error('Error updating order status:', error)
+    return { success: false, error: error.message }
+  }
+
+  // 2. Récupérer les infos pour l'email
+  const { data: order } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('id', orderId)
+    .single()
+
+  if (order) {
+    const addr = order.shipping_address as any
+    
+    // Récupérer les articles
+    const { data: fullItems } = await supabase
+      .from('order_items')
+      .select(`
+        quantity,
+        price_at_purchase,
+        product_variants (
+          size,
+          color,
+          products (
+            name
+          )
+        )
+      `)
+      .eq('order_id', orderId)
+
+    const emailItems = (fullItems || []).map((item: any) => ({
+      name: item.product_variants?.products?.name || 'Produit',
+      quantity: item.quantity,
+      price: item.price_at_purchase,
+      variantInfo: [item.product_variants?.size, item.product_variants?.color].filter(Boolean).join(' / ')
+    }))
+
+    try {
+      await sendOrderEmail({
+        orderId: order.id,
+        customerEmail: order.customer_email,
+        status: order.status,
+        customerName: addr?.customer_name || 'Client',
+        totalAmount: order.total_amount,
+        items: emailItems
+      })
+    } catch (err) {
+      console.error('Failed to send status update email:', err)
+    }
+  }
+
+  revalidatePath('/admin/orders')
+  revalidatePath('/admin')
+  
+  return { success: true }
 }
