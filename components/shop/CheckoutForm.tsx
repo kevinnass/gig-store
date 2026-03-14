@@ -119,7 +119,7 @@ export default function CheckoutForm() {
         >
           {/* Section Header */}
           <div className="space-y-4">
-            <p className="text-slate-500 text-2xl max-w-m leading-relaxed">
+            <p className="text-slate-500 text-xl max-w-md leading-relaxed">
               Veuillez renseigner vos informations pour le suivi et la livraison de votre commande.
             </p>
           </div>
@@ -196,12 +196,12 @@ export default function CheckoutForm() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="lg:sticky lg:top-32 space-y-10 bg- border border-black dark:border-white text-black dark:bg-black dark:text-white p-8 md:p-10"
+          className="lg:sticky lg:top-32 space-y-10 bg-gray-50 dark:bg-slate-900/50 text-black border border-slate-200 dark:bg-slate-900/50 dark:text-white dark:border-slate-800 p-8 md:p-10"
         >
           <div className="space-y-6">
-            <h2 className="text-xl font-bold uppercase tracking-widest border-b border-white/20 dark:border-black/10 pb-6 flex justify-between items-center">
+            <h2 className="text-xl font-bold uppercase tracking-widest border-b border-slate-100 dark:border-white/10 pb-6 flex justify-between items-center">
               Votre Panier
-              <span className="text-[10px] font-medium bg-white/10 dark:bg-black/5 px-3 py-1 rounded-full">{items.length} articles</span>
+              <span className="text-[10px] font-medium bg-slate-100 dark:bg-white/5 px-3 py-1 rounded-full">{items.length} articles</span>
             </h2>
             
             <div className="max-h-[320px] overflow-y-auto space-y-8 pr-4 custom-scrollbar">
@@ -212,7 +212,7 @@ export default function CheckoutForm() {
                     key={item.variant_id} 
                     className="flex gap-6"
                   >
-                    <div className="w-20 h-24 bg-white/5 dark:bg-black/5 shrink-0 overflow-hidden relative group">
+                    <div className="w-20 h-24 bg-slate-50 dark:bg-black/20 shrink-0 overflow-hidden relative group">
                       {item.image && (
                         <div 
                           className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
@@ -223,14 +223,14 @@ export default function CheckoutForm() {
                     <div className="flex-1 flex flex-col justify-between py-1">
                       <div>
                         <p className="text-xs font-bold uppercase tracking-wider mb-1 leading-tight">{item.name}</p>
-                        <div className="flex gap-2 text-[9px] uppercase tracking-widest text-white/50 dark:text-black/50 font-bold">
+                        <div className="flex gap-2 text-[9px] uppercase tracking-widest text-slate-400 dark:text-white/40 font-bold">
                           {item.size && <span>Taille: {item.size}</span>}
                           {item.size && item.color && <span>|</span>}
                           {item.color && <span>Couleur: {item.color}</span>}
                         </div>
                       </div>
                       <div className="flex justify-between items-end">
-                        <span className="text-[10px] font-medium text-white/40 dark:text-black/40">Qté: {item.quantity}</span>
+                        <span className="text-[10px] font-medium text-slate-400 dark:text-white/30">Qté: {item.quantity}</span>
                         <p className="text-sm font-bold tracking-tighter">
                           {item.price * item.quantity} <span className="text-[10px] ml-1 opacity-60">CFA</span>
                         </p>
@@ -242,14 +242,14 @@ export default function CheckoutForm() {
             </div>
           </div>
 
-          <div className="space-y-5 pt-8 border-t border-white/20 dark:border-black/10">
-            <div className="flex justify-between text-[11px] uppercase tracking-widest font-bold text-white/50 dark:text-black/50">
+          <div className="space-y-5 pt-8 border-t border-slate-100 dark:border-white/10">
+            <div className="flex justify-between text-[11px] uppercase tracking-widest font-bold text-slate-400 dark:text-white/40">
               <span>Sous-total</span>
               <span>{totalPrice()} CFA</span>
             </div>
-            <div className="flex justify-between text-[11px] uppercase tracking-widest font-bold text-white/50 dark:text-black/50">
+            <div className="flex justify-between text-[11px] uppercase tracking-widest font-bold text-slate-400 dark:text-white/40">
               <span>Livraison</span>
-              <span className="text-white dark:text-black">Gratuite</span>
+              <span className="text-black dark:text-white">Gratuite</span>
             </div>
             
             <div className="flex justify-between items-baseline pt-4">
@@ -264,7 +264,7 @@ export default function CheckoutForm() {
               form="checkout-form"
               type="submit"
               disabled={isProcessing || items.length === 0}
-              className="w-full h-16 bg-white text-black dark:bg-black dark:text-white font-black uppercase tracking-[0.25em] text-[11px] hover:bg-slate-200 dark:hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-3 relative overflow-hidden group"
+              className="w-full h-16 bg-black text-white dark:bg-white dark:text-black font-black uppercase tracking-[0.25em] text-[11px] hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-[0.98] disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-3 relative overflow-hidden group"
             >
               {isProcessing ? (
                 <>

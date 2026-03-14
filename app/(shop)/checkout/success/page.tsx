@@ -49,8 +49,8 @@ function SuccessContent() {
         transition={{ duration: 0.8, delay: 0.3 }}
         className="grid md:grid-cols-2 gap-8"
       >
-        <div className="bg-black text-white dark:bg-white dark:text-black p-10 space-y-6">
-          <div className="flex items-center gap-4 border-b border-white/20 dark:border-black/10 pb-6">
+        <div className="bg-white text-black border border-slate-200 dark:bg-slate-900/50 dark:text-white dark:border-slate-800 p-10 space-y-6">
+          <div className="flex items-center gap-4 border-b border-slate-100 dark:border-white/10 pb-6">
             <Package className="w-6 h-6 opacity-50" />
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest opacity-50">Numéro de commande</p>
@@ -83,7 +83,7 @@ function SuccessContent() {
 
 export default function SuccessPage() {
   return (
-    <div className="container mx-auto px-4 py-24 md:py-40">
+    <div className="container mx-auto px-4 pt-12 md:pt-16 pb-24 md:pb-32">
       <Suspense fallback={
         <div className="min-h-[40vh] flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin" />
