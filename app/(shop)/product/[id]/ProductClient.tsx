@@ -149,7 +149,19 @@ export default function ProductClient({ product }: { product: any }) {
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
               {product.categories?.name}
             </p>
-            <h1 className="text-3xl lg:text-5xl font-bold tracking-tighter uppercase">{product.name}</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <h1 className="text-3xl lg:text-5xl font-bold tracking-tighter uppercase flex-1">{product.name}</h1>
+              {isOutOfStock && (
+                <span className="inline-flex items-center px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-[10px] font-bold uppercase tracking-widest self-start sm:self-center">
+                  Rupture de stock
+                </span>
+              )}
+              {!isOutOfStock && selectedVariant && selectedVariant.stock_quantity <= 5 && (
+                <span className="inline-flex items-center px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-bold uppercase tracking-widest self-start sm:self-center">
+                  Stock Faible ({selectedVariant.stock_quantity})
+                </span>
+              )}
+            </div>
             <p className="text-xl font-medium pt-2">{product.price} CFA</p>
           </div>
 

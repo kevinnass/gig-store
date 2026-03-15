@@ -22,7 +22,8 @@ export default async function HomePage() {
     .from('products')
     .select(`
       *,
-      categories (name)
+      categories (name),
+      product_variants (stock_quantity)
     `)
     .order('created_at', { ascending: false })
     .limit(8)
@@ -60,8 +61,8 @@ export default async function HomePage() {
       </section>
 
       {/* Featured Categories */}
-      <section className="py-20 container mx-auto px-4">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+      <section className="py-20 w-full px-4 md:px-10 overflow-hidden">
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-end text-center md:text-left mb-12 gap-4">
           <div>
             <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-slate-500 mb-3">Parcourir</h2>
             <p className="text-3xl md:text-5xl font-bold tracking-tighter uppercase">Nos Catégories</p>
@@ -109,22 +110,21 @@ export default async function HomePage() {
       </section>
 
       {/* New Arrivals Section */}
-      <section className="py-20 bg-slate-50 dark:bg-slate-900/50">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
-            <div>
-              <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-slate-500 mb-3 flex items-center gap-2">
-                <Sparkles className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                Nouveautés
-              </h2>
-              <p className="text-3xl md:text-5xl font-bold tracking-tighter uppercase">Nos Nouveautés</p>
-            </div>
-            <Link href="/shop?sort=newest" className="text-sm font-bold uppercase tracking-widest border-b-[1.5px] border-slate-900 dark:border-white pb-1 hover:text-slate-500 hover:border-slate-500 transition-all">
-              Découvrir tout
-            </Link>
+      <section className="py-20 w-full px-4 md:px-10 bg-slate-50 dark:bg-slate-900/50 overflow-hidden">
+        <div className="flex flex-col md:flex-row justify-between items-center md:items-end text-center md:text-left mb-12 gap-4">
+          <div>
+            <h2 className="text-xs font-bold uppercase tracking-[0.4em] text-slate-500 mb-3 flex items-center justify-center md:justify-start gap-2">
+              <Sparkles className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+              Nouveautés
+            </h2>
+            <p className="text-3xl md:text-5xl font-bold tracking-tighter uppercase">Nos Nouveautés</p>
           </div>
+          <Link href="/shop?sort=newest" className="text-sm font-bold uppercase tracking-widest border-b-[1.5px] border-slate-900 dark:border-white pb-1 hover:text-slate-500 hover:border-slate-500 transition-all">
+            Découvrir tout
+          </Link>
+        </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {recentProducts?.map((product: any) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -143,7 +143,6 @@ export default async function HomePage() {
               </Button>
             </Link>
           </div>
-        </div>
       </section>
     </div>
   )

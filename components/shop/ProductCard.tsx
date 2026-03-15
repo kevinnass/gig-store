@@ -49,12 +49,45 @@ export function ProductCard({ product }: { product: any }) {
             Nouveau
           </span>
         )}
+
+        {/* Badge Stock */}
+        {(() => {
+          const variants = product.product_variants || []
+          const totalStock = variants.reduce((acc: number, v: any) => acc + (v.stock_quantity || 0), 0)
+          
+          if (totalStock > 0 && totalStock <= 5) {
+            return (
+              <span className="absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 pointer-events-none shadow-sm">
+                Bientôt épuisé
+              </span>
+            )
+          } else if (variants.length > 0 && totalStock <= 0) {
+            return (
+              <span className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 pointer-events-none shadow-sm">
+                Rupture
+              </span>
+            )
+          }
+          return null
+        })()}
       </div>
 
       {/* Info Produit */}
       <Link href={`/product/${product.id}`} className="space-y-1">
         <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{product.categories?.name}</p>
-        <h3 className="text-sm font-bold uppercase tracking-wider">{product.name}</h3>
+        <div className="flex justify-between items-start gap-2">
+          <h3 className="text-sm font-bold uppercase tracking-wider flex-1">{product.name}</h3>
+          {(() => {
+            const variants = product.product_variants || []
+            const totalStock = variants.reduce((acc: number, v: any) => acc + (v.stock_quantity || 0), 0)
+            if (variants.length > 0 && totalStock <= 0) {
+              return <span className="text-[10px] font-bold text-red-600 uppercase tracking-wider shrink-0 mt-1">Épuisé</span>
+            } else if (totalStock > 0 && totalStock <= 5) {
+              return <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wider shrink-0 mt-1">({totalStock} restants)</span>
+            }
+            return null
+          })()}
+        </div>
         <p className="text-sm">{product.price} CFA</p>
       </Link>
     </div>

@@ -4,6 +4,9 @@ import Link from 'next/link'
 import { SortFilter } from '@/components/shop/SortFilter'
 import SearchResultsText from '@/components/shop/SearchResultsText'
 import { ProductCard } from '@/components/shop/ProductCard'
+import { CategoryFilterClient } from '@/components/shop/CategoryFilterClient'
+
+import { BackToTop } from '@/components/shop/BackToTop'
 
 export const metadata = {
   title: 'Catalogue - Gig-store',
@@ -56,7 +59,7 @@ export default async function ShopPage(props: {
 
   return (
     <div className="container mx-auto px-4 py-12 md:py-20 mt-16 md:mt-24">
-      <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+      <div className="flex flex-col items-center md:items-start text-center md:text-left mb-12 gap-4">
         <div>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tighter uppercase">Le Catalogue</h1>
           <p className="text-muted-foreground mt-2">Découvrez nos produits et nos catégories.</p>
@@ -64,8 +67,12 @@ export default async function ShopPage(props: {
       </div>
 
       {/* Categories Filter & sorting */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-12 border-b dark:border-slate-800 pb-4">
-        <div className="flex overflow-x-auto gap-3 no-scrollbar w-full md:w-auto py-1">
+      <div className="flex flex-row items-center md:justify-between gap-3 mb-12 border-b dark:border-slate-800 pb-4 w-full">
+        {/* Mobile Look: Select Dropdown */}
+        <CategoryFilterClient categories={categories} categorySlug={categorySlug} />
+
+        {/* Desktop Look: Pills Slider */}
+        <div className="hidden md:flex overflow-x-auto gap-3 no-scrollbar w-full md:w-auto py-1">
           <Link 
             href={`/shop${sort ? `?sort=${sort}` : ''}${searchQuery ? `${sort ? '&' : '?'}search=${searchQuery}` : ''}`} 
             className={`px-8 py-2.5 rounded-full border transition-all duration-300 text-[11px] font-bold uppercase tracking-[0.15em] whitespace-nowrap ${
@@ -90,6 +97,7 @@ export default async function ShopPage(props: {
             </Link>
           ))}
         </div>
+        
         <Suspense fallback={<div className="h-10 w-32" />}>
           <SortFilter />
         </Suspense>
@@ -159,6 +167,8 @@ export default async function ShopPage(props: {
           )}
         </div>
       )}
+      {/* Back to top Button */}
+      <BackToTop />
     </div>
   )
 }

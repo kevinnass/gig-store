@@ -11,15 +11,31 @@ import { Button } from '@/components/ui/button'
 import { ModeToggle } from '@/components/ModeToggle'
 import CartPopover from '@/components/shop/CartPopover'
 import { SearchBar } from '@/components/shop/SearchBar'
+import { useSearch } from '@/store/search'
+import { createClient } from '@/lib/supabase/client'
 
 export default function Header() {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const [user, setUser] = useState<any>(null)
   const totalItems = useCart((state) => state.totalItems())
-
+ 
   useEffect(() => {
     setMounted(true)
+    const supabase = createClient()
+ 
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user)
+    })
+ 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null)
+    })
+ 
+    return () => subscription.unsubscribe()
   }, [])
+ 
+  const profileLink = user ? '/account' : '/login'
 
   return (
     <>
@@ -30,8 +46,10 @@ export default function Header() {
       </div> */}
       
       <div className="container mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
-        {/* Mobile Spacer (Empty so Logo centers correctly or stays left) */}
-        <div className="md:hidden flex-1"></div>
+        {/* Mobile Left: Dark Mode Toggle */}
+        <div className="md:hidden flex-1 flex justify-start">
+          <ModeToggle />
+        </div>
 
         {/* Logo */}
         <div className="flex-1 md:flex-none text-center md:text-left">
@@ -97,62 +115,67 @@ export default function Header() {
             </Suspense>
           </div>
           
-          <Link href="/login">
-            <Button variant="ghost" size="icon" className="inline-flex">
-              <User className="h-5 w-5" />
+          <Link href={profileLink} className="hidden md:inline-flex">
+            <Button variant="ghost" size="icon" className="relative">
+              {user ? (
+                <div className="flex items-center justify-center h-6 w-6 rounded-full bg-black text-white dark:bg-white dark:text-black font-bold text-[10px] uppercase shadow-sm">
+                  {user.email?.[0].toUpperCase() || '?'}
+                </div>
+              ) : (
+                <User className="h-5 w-5" />
+              )}
             </Button>
           </Link>
-          <ModeToggle />
+          
+          <div className="hidden md:block">
+            <ModeToggle />
+          </div>
         </div>
       </div>
     </header>
 
       {/* Mobile Bottom Navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-950 border-t flex items-center justify-around h-16 pb-safe safe-area-padding shadow-[0_-1px_10px_rgba(0,0,0,0.05)]">
-        {[
-          { name: 'Accueil', path: '/', icon: Home },
-          { name: 'Boutique', path: '/shop', icon: Grid },
-          { name: 'Panier', path: '/cart', icon: ShoppingBag, count: totalItems },
-          { name: 'Contact', path: '/contact', icon: Mail },
-        ].map((item) => {
-          const isActive = item.path === '/' 
-            ? pathname === '/' 
-            : pathname.startsWith(item.path)
-          const Icon = item.icon
-
-          return (
-            <Link 
-              key={item.path}
-              href={item.path} 
-              className={`relative flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-300 ${isActive ? 'text-black dark:text-white' : 'text-slate-400'}`}
-            >
-              <motion.div
-                initial={false}
-                animate={isActive ? { scale: 1.2, y: -2 } : { scale: 1, y: 0 }}
-                whileTap={{ scale: 0.9 }}
-                className="relative"
-              >
-                <Icon className="h-5 w-5" />
-                {mounted && item.count !== undefined && item.count > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-black dark:bg-white text-white dark:text-black text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
-                    {item.count}
-                  </span>
-                )}
-              </motion.div>
-              <span className={`text-[9px] font-bold uppercase tracking-wider transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
-                {item.name}
-              </span>
-              {isActive && (
-                <motion.div 
-                  layoutId="mobile-nav-indicator"
-                  className="absolute top-0 w-8 h-[2px] bg-black dark:bg-white"
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                />
-              )}
-            </Link>
-          )
-        })}
+        <MobileNavLink href="/" icon={Home} label="Accueil" isActive={pathname === '/'} />
+        <MobileNavLink href="/shop" icon={Grid} label="Boutique" isActive={pathname === '/shop'} />
+        <MobileNavLink href="/cart" icon={ShoppingBag} label="Panier" isActive={pathname === '/cart'} count={totalItems} />
+        <MobileNavLink href={profileLink} icon={User} label="Profil" isActive={pathname === profileLink} hasIndicator={!!user} />
       </nav>
     </>
+  )
+}
+
+function MobileNavLink({ href, icon: Icon, label, isActive, count, hasIndicator }: { href: string; icon: any; label: string; isActive: boolean; count?: number; hasIndicator?: boolean }) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  return (
+    <Link 
+      href={href} 
+      className={`relative flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-300 ${isActive ? 'text-black dark:text-white' : 'text-slate-400'}`}
+    >
+      <motion.div
+        initial={false}
+        animate={isActive ? { scale: 1.1, y: -2 } : { scale: 1, y: 0 }}
+        whileTap={{ scale: 0.9 }}
+        className="relative"
+      >
+        {hasIndicator ? (
+          <div className="flex items-center justify-center h-5 w-5 rounded-full bg-black dark:bg-white text-white dark:text-black font-bold text-[9px] uppercase shadow-sm">
+             {isActive ? '●' : '◯'}
+          </div>
+        ) : (
+          <Icon className="h-5 w-5" />
+        )}
+        {mounted && count !== undefined && count > 0 && (
+          <span className="absolute -top-1.5 -right-1.5 bg-black dark:bg-white text-white dark:text-black text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold">
+            {count}
+          </span>
+        )}
+      </motion.div>
+      <span className={`text-[9px] font-bold uppercase tracking-wider transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+        {label}
+      </span>
+    </Link>
   )
 }

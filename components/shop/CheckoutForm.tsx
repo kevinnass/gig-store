@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { useKKiaPay } from 'kkiapay-react'
 import { useCart } from '@/store/cart'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -48,6 +49,36 @@ export default function CheckoutForm() {
 
   useEffect(() => {
     setMounted(true)
+
+    // Autofill Profile info if logged in
+    const loadProfile = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single()
+
+        if (profile) {
+          setFormData(prev => ({
+            ...prev,
+            email: user.email || '',
+            name: profile.full_name || '',
+            phone: profile.phone_number || '',
+            city: profile.city || '',
+            street: profile.street || '',
+            details: profile.details || ''
+          }))
+        } else {
+          setFormData(prev => ({ ...prev, email: user.email || '' }))
+        }
+      }
+    }
+
+    loadProfile()
   }, [])
 
   const { openKkiapayWidget, addSuccessListener, addKkiapayCloseListener } = useKKiaPay()
@@ -146,7 +177,7 @@ export default function CheckoutForm() {
               <CustomInput 
                 id="phone" 
                 type="tel" 
-                label="Téléphone (KKiaPay Mobile Money)" 
+                label="Téléphone" 
                 placeholder="Ex: 229XXXXXXXX" 
                 required 
                 value={formData.phone} 
