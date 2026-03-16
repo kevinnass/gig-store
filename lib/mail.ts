@@ -118,3 +118,41 @@ export async function sendOrderEmail({
     return { success: false, error }
   }
 }
+
+export async function sendContactEmail({
+  name,
+  email,
+  subject,
+  message
+}: {
+  name: string
+  email: string
+  subject: string
+  message: string
+}) {
+  try {
+    const htmlContent = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px; background-color: #ffffff;">
+        <h2 style="color: #000; text-align: center;">Message client</h2>
+        <p><strong>Nom :</strong> ${name}</p>
+        <p><strong>Email :</strong> ${email}</p>
+        <p><strong>Sujet :</strong> ${subject}</p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="white-space: pre-wrap; color: #333;">${message}</p>
+      </div>
+    `
+
+    const info = await transporter.sendMail({
+      from: `"Gig Store Contact" <${process.env.SMTP_USER}>`,
+      to: 'gigstore.shop@gmail.com',
+      replyTo: email,
+      subject: `[Formulaire Contact] ${subject}`,
+      html: htmlContent,
+    })
+
+    return { success: true, messageId: info.messageId }
+  } catch (error) {
+    console.error('Nodemailer Contact Error:', error)
+    return { success: false, error }
+  }
+}

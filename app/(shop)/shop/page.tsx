@@ -21,7 +21,7 @@ export default async function ShopPage(props: {
   const sort = searchParams?.sort as string | undefined
   const searchQuery = searchParams?.search as string | undefined
   const page = Number(searchParams?.page) || 1
-  const ITEMS_PER_PAGE = 8
+  const ITEMS_PER_PAGE = 12
   const offset = (page - 1) * ITEMS_PER_PAGE
 
   const supabase = await createClient()
@@ -32,7 +32,7 @@ export default async function ShopPage(props: {
   // Fetch products
   let query = supabase.from('products').select(`
     *,
-    categories!inner ( name, slug ),
+    categories${categorySlug ? '!inner' : ''} ( name, slug ),
     product_variants ( id, stock_quantity, color, size )
   `, { count: 'exact' })
 

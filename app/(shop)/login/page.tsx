@@ -126,7 +126,7 @@ export default function LoginPage() {
                   type="submit"
                   className="w-full h-12 rounded-none bg-black text-white dark:bg-white dark:text-black font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-slate-800 dark:hover:bg-slate-200 group/btn transition-all"
                 >
-                  {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Recevoir le code par e-mail'}
+                  {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : 'Recevoir un code de connexion'}
                   {!isLoading && <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover/btn:translate-x-1" />}
                 </Button>
               </motion.form>

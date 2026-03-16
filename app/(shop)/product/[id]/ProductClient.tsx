@@ -17,8 +17,9 @@ export default function ProductClient({ product }: { product: any }) {
   const availableColors = Array.from(new Set(variants.map((v: any) => v.color).filter(Boolean))) as string[]
   const availableSizes = Array.from(new Set(variants.map((v: any) => v.size).filter(Boolean))) as string[]
 
-  const [selectedColor, setSelectedColor] = useState<string>(availableColors[0] || '')
-  const [selectedSize, setSelectedSize] = useState<string>(availableSizes[0] || '')
+  const firstAvailableVariant = variants.find((v: any) => v.stock_quantity > 0) || variants[0]
+  const [selectedColor, setSelectedColor] = useState<string>(firstAvailableVariant?.color || availableColors[0] || '')
+  const [selectedSize, setSelectedSize] = useState<string>(firstAvailableVariant?.size || availableSizes[0] || '')
   const [quantity, setQuantity] = useState<number>(1)
 
   const allImages = Array.isArray(product.gallery) && product.gallery.length > 0 
@@ -31,10 +32,42 @@ export default function ProductClient({ product }: { product: any }) {
   // Find the exact variant based on selection
   const selectedVariant = variants.find((v: any) => 
     (availableColors.length === 0 || v.color === selectedColor) &&
+    (availableSizes.length === 0 || v.size === selectedSize) &&
+    v.stock_quantity > 0
+  ) || variants.find((v: any) => 
+    (availableColors.length === 0 || v.color === selectedColor) &&
     (availableSizes.length === 0 || v.size === selectedSize)
   )
 
-  const isOutOfStock = selectedVariant ? selectedVariant.stock_quantity <= 0 : true
+  const isOutOfStock = selectedVariant ? selectedVariant.stock_quantity <= 0 : false
+
+  const isSizeDisabled = (size: string) => {
+    const variant = variants.find((v: any) => 
+      v.size === size && 
+      (availableColors.length === 0 || v.color === selectedColor)
+    )
+    return !variant || variant.stock_quantity <= 0
+  }
+
+  const isColorDisabled = (color: string) => {
+    return !variants.some((v: any) => v.color === color && v.stock_quantity > 0)
+  }
+
+  const handleColorSelect = (color: string) => {
+    setSelectedColor(color)
+    const validVariant = variants.find((v: any) => v.color === color && v.stock_quantity > 0)
+    if (validVariant && validVariant.size) {
+      setSelectedSize(validVariant.size)
+    }
+  }
+
+  const handleSizeSelect = (size: string) => {
+    setSelectedSize(size)
+    const validVariant = variants.find((v: any) => v.size === size && v.stock_quantity > 0)
+    if (validVariant && validVariant.color) {
+      setSelectedColor(validVariant.color)
+    }
+  }
 
   const handleAddToCart = () => {
     if (!selectedVariant || isOutOfStock) return
@@ -177,19 +210,26 @@ export default function ProductClient({ product }: { product: any }) {
               <div className="space-y-4">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Couleurs disponibles</span>
                 <div className="flex flex-wrap gap-3">
-                  {availableColors.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`px-5 py-2.5 border text-[10px] font-bold uppercase tracking-widest transition-all ${
-                        selectedColor === color 
-                          ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black shadow-sm' 
-                          : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white'
-                      }`}
-                    >
-                      {color}
-                    </button>
-                  ))}
+                  {availableColors.map((color) => {
+                    const disabled = isColorDisabled(color)
+                    
+                    return (
+                      <button
+                        key={color}
+                        disabled={disabled}
+                        onClick={() => handleColorSelect(color)}
+                        className={`px-5 py-2.5 border text-[10px] font-bold uppercase tracking-widest transition-all ${
+                          selectedColor === color 
+                            ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black shadow-sm' 
+                            : disabled 
+                            ? 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                            : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white'
+                        }`}
+                      >
+                        {color}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             )}
@@ -202,19 +242,25 @@ export default function ProductClient({ product }: { product: any }) {
                   <button className="text-[10px] font-medium text-slate-400 hover:text-black dark:hover:text-white underline underline-offset-4">Guide des tailles</button>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {availableSizes.map((size) => (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`w-14 h-14 border flex items-center justify-center text-xs font-bold uppercase transition-all ${
-                        selectedSize === size 
-                          ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black shadow-sm' 
-                          : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
+                  {availableSizes.map((size) => {
+                    const disabled = isSizeDisabled(size)
+                    return (
+                      <button
+                        key={size}
+                        disabled={disabled}
+                        onClick={() => handleSizeSelect(size)}
+                        className={`w-14 h-14 border flex items-center justify-center text-xs font-bold uppercase transition-all ${
+                          selectedSize === size 
+                            ? 'border-black dark:border-white bg-black dark:bg-white text-white dark:text-black shadow-sm' 
+                            : disabled 
+                            ? 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                            : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-black dark:hover:border-white hover:text-black dark:hover:text-white'
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    )
+                  })}
                 </div>
               </div>
             )}

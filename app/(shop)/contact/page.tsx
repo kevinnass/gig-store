@@ -1,11 +1,57 @@
-import { Button } from '@/components/ui/button'
+'use client'
 
-export const metadata = {
-  title: 'Contact - Gig-store',
-  description: 'Nous contacter pour toute demande.',
-}
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { useToastStore } from '@/store/toast'
+import { Loader2 } from 'lucide-react'
 
 export default function ContactPage() {
+  const showToast = useToastStore((state) => state.showToast)
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    subject: 'Question sur un produit',
+    message: ''
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        })
+      })
+
+      if (response.ok) {
+        showToast('Message envoyé avec succès !')
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          subject: 'Question sur un produit',
+          message: ''
+        })
+      } else {
+        const error = await response.json()
+        showToast(error.error || 'Une erreur est survenue.')
+      }
+    } catch (err) {
+       showToast('Une erreur est survenue.')
+    } finally {
+       setLoading(false)
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-12 md:py-20 mt-16 md:mt-24 max-w-4xl">
       <div className="text-center mb-16 space-y-4">
@@ -15,46 +61,51 @@ export default function ContactPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Infos */}
-        <div className="space-y-8">
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-widest border-b border-black dark:border-white inline-block pb-1 mb-4">Service Client</h3>
-            <p className="text-sm text-muted-foreground mb-1">Du lundi au vendredi, de 9h à 18h.</p>
-            <p className="text-sm font-medium">hello@gig-store.com</p>
-            <p className="text-sm font-medium">+33 1 23 45 67 89</p>
-          </div>
-          
-          <div>
-            <h3 className="text-sm font-bold uppercase tracking-widest border-b border-black dark:border-white inline-block pb-1 mb-4">Maison Mère</h3>
-            <p className="text-sm text-muted-foreground mb-1">Visites sur rendez-vous uniquement.</p>
-            <p className="text-sm font-medium">12 Avenue Montaigne</p>
-            <p className="text-sm font-medium">75008 Paris, France</p>
-          </div>
-        </div>
-
+      <div className="max-w-lg mx-auto">
         {/* Form */}
-        <form className="space-y-6 bg-slate-50 dark:bg-slate-900 border dark:border-slate-800 p-8">
+        <form onSubmit={handleSubmit} className="space-y-6 bg-slate-50 dark:bg-slate-900 border dark:border-slate-800 p-8">
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Prénom</label>
-                <input type="text" className="w-full bg-white dark:bg-slate-950 border dark:border-slate-800 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all" required />
+                <input 
+                  type="text" 
+                  value={formData.firstName}
+                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                  className="w-full bg-white dark:bg-slate-950 border dark:border-slate-800 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all" 
+                  required 
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Nom</label>
-                <input type="text" className="w-full bg-white dark:bg-slate-950 border dark:border-slate-800 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all" required />
+                <input 
+                  type="text" 
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  className="w-full bg-white dark:bg-slate-950 border dark:border-slate-800 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all" 
+                  required 
+                />
               </div>
             </div>
             
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Email</label>
-              <input type="email" className="w-full bg-white dark:bg-slate-950 border dark:border-slate-800 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all" required />
+              <input 
+                type="email" 
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full bg-white dark:bg-slate-950 border dark:border-slate-800 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all" 
+                required 
+              />
             </div>
 
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Sujet</label>
-              <select className="w-full bg-white dark:bg-slate-950 border dark:border-slate-800 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all appearance-none rounded-none">
+              <select 
+                value={formData.subject}
+                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                className="w-full bg-white dark:bg-slate-950 border dark:border-slate-800 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all appearance-none rounded-none"
+              >
                 <option>Question sur un produit</option>
                 <option>Suivi de commande</option>
                 <option>Retours et remboursements</option>
@@ -65,12 +116,18 @@ export default function ContactPage() {
 
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Message</label>
-              <textarea rows={5} className="w-full bg-white dark:bg-slate-950 border dark:border-slate-800 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all resize-none" required></textarea>
+              <textarea 
+                rows={5} 
+                value={formData.message}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                className="w-full bg-white dark:bg-slate-950 border dark:border-slate-800 px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black dark:focus:ring-white transition-all resize-none" 
+                required
+              ></textarea>
             </div>
           </div>
 
-          <Button type="button" className="w-full h-12 rounded-none font-bold uppercase tracking-widest text-xs bg-black text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 transition-colors">
-            Envoyer le message
+          <Button type="submit" disabled={loading} className="w-full h-12 rounded-none font-bold uppercase tracking-widest text-xs bg-black text-white hover:bg-slate-800 dark:bg-white dark:text-black dark:hover:bg-slate-200 transition-colors flex items-center justify-center gap-2">
+            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Envoyer le message'}
           </Button>
         </form>
       </div>
