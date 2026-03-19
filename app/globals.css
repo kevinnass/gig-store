@@ -127,4 +127,20 @@
     font-family: var(--font-ubuntu), "Ubuntu", sans-serif;
     @apply font-sans;
   }
+
+  /* Cursor pointer on all interactive elements */
+  a,
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="reset"],
+  input[type="button"],
+  input[type="checkbox"],
+  input[type="radio"],
+  select,
+  label[for],
+  summary,
+  [tabindex]:not([tabindex="-1"]) {
+    cursor: pointer;
+  }
 }

@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
       })
 
       if (error) {
-        throw new Error(error.message)
+        throw new Error('Identifiants de connexion incorrects.')
       }
 
       // Si l'utilisateur connecté n'est pas le bon admin
@@ -91,7 +91,7 @@ export default function AdminLoginPage() {
                 <input 
                   type="email" 
                   value={email}
-                  placeholder="admin@gigstore.shop"
+                  placeholder=""
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 pl-10 pr-4 py-3 text-xs font-medium focus:outline-none focus:border-black dark:focus:border-white transition-colors"
                   autoFocus
