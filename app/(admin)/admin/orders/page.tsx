@@ -9,6 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { OrderStatusSelector } from '@/components/admin/OrderStatusSelector'
+import { OrderItemExpander } from '@/components/admin/OrderItemExpander'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { OrderSearch } from '@/components/admin/OrderSearch'
@@ -30,7 +31,22 @@ export default async function OrdersPage(props: {
   
   let query = supabase
     .from('orders')
-    .select('*')
+    .select(`
+      *,
+      order_items (
+        id,
+        quantity,
+        price_at_purchase,
+        product_variants (
+          size,
+          color,
+          products (
+            name,
+            main_image
+          )
+        )
+      )
+    `)
     .order('created_at', { ascending: false })
 
   if (search) {
@@ -95,6 +111,7 @@ export default async function OrdersPage(props: {
               <TableHead className="w-[120px]">ID / Date</TableHead>
               <TableHead>Client & Contact</TableHead>
               <TableHead>Adresse</TableHead>
+              <TableHead>Produits</TableHead>
               <TableHead className="text-right">Montant</TableHead>
               <TableHead className="text-center">Paiement</TableHead>
               <TableHead className="text-center">Statut Livraison</TableHead>
@@ -128,6 +145,12 @@ export default async function OrdersPage(props: {
                         {addr?.details && <p className="text-[10px] italic text-slate-400">{addr.details}</p>}
                       </div>
                     </TableCell>
+                    <TableCell>
+                      <OrderItemExpander
+                        orderId={order.id}
+                        items={(order as any).order_items || []}
+                      />
+                    </TableCell>
                     <TableCell className="text-right font-black">
                       {order.total_amount.toLocaleString()} <span className="text-[10px] opacity-40">CFA</span>
                     </TableCell>
@@ -144,7 +167,7 @@ export default async function OrdersPage(props: {
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-40 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="h-40 text-center text-muted-foreground">
                   <div className="flex flex-col items-center gap-2">
                     <span className="text-3xl">📝</span>
                     <p className="font-medium">Aucune commande trouvée</p>
