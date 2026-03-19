@@ -136,9 +136,9 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-16 text-center">
-            <Link href="/shop">
-              <Button size="lg" className="px-12 h-14 text-sm font-bold uppercase tracking-[0.2em] rounded-none hover:bg-slate-800 transition-all group">
-                Découvrir tous les produits
+            <Link href="/shop" className="inline-block">
+              <Button size="lg" className="h-14 text-sm font-bold uppercase tracking-[0.2em] rounded-none hover:bg-slate-800 transition-all group w-auto">
+                Découvrir tout
                 <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>

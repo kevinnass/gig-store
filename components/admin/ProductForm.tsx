@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useTransition } from 'react'
+import { useRef, useTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useToastStore } from '@/store/toast'
 import { createProduct, updateProduct } from '@/app/actions/products'
 import { createClient } from '@/lib/supabase/client'
-import { ImageInput } from '@/components/admin/ImageInput'
+import { GalleryInput } from '@/components/admin/GalleryInput'
 import Link from 'next/link'
 
 // Schéma de validation
@@ -57,7 +57,13 @@ export function ProductForm({ categories, productId, initialData }: ProductFormP
   const router = useRouter()
   const { showToast } = useToastStore()
   const [isPending, startTransition] = useTransition()
-  const selectedFileRef = useRef<File | null>(null)
+  // Gallery: first item = main image, rest = gallery
+  const initialImages = [
+    ...(initialData?.main_image ? [initialData.main_image] : []),
+    ...((initialData as any)?.gallery || [])
+  ]
+  const [galleryImages, setGalleryImages] = useState<string[]>(initialImages)
+  const pendingFilesRef = useRef<{ index: number; file: File }[]>([])
 
   const isEditing = !!productId
 
@@ -83,33 +89,37 @@ export function ProductForm({ categories, productId, initialData }: ProductFormP
 
   async function onSubmit(data: ProductFormValues) {
     startTransition(async () => {
-      let imageUrl: string | null = data.main_image ?? null
+      const supabase = createClient()
+      const uploadedUrls: string[] = []
 
-      // Upload du fichier si l'utilisateur en a sélectionné un
-      if (selectedFileRef.current && data.main_image?.startsWith('FILE:')) {
-        const file = selectedFileRef.current
-        const supabase = createClient()
-        const fileExt = file.name.split('.').pop()
-        const filePath = `products/${Date.now()}.${fileExt}`
-
-        const { error: uploadError, data: uploadData } = await supabase.storage
-          .from('product-images')
-          .upload(filePath, file, { upsert: true })
-
-        if (uploadError) {
-          showToast('Erreur upload image: ' + uploadError.message, 'error')
-          return
+      // Upload any pending files
+      for (const img of galleryImages) {
+        if (img.startsWith('FILE:')) {
+          const parts = img.split(':')
+          const idx = parseInt(parts[1])
+          const file = pendingFilesRef.current.find((f) => f.index === idx)?.file
+          if (file) {
+            const fileExt = file.name.split('.').pop()
+            const filePath = `products/${Date.now()}-${idx}.${fileExt}`
+            const { error: uploadError, data: uploadData } = await supabase.storage
+              .from('product-images')
+              .upload(filePath, file, { upsert: true })
+            if (uploadError) {
+              showToast('Erreur upload image: ' + uploadError.message, 'error')
+              return
+            }
+            const { data: urlData } = supabase.storage.from('product-images').getPublicUrl(uploadData.path)
+            uploadedUrls.push(urlData.publicUrl)
+          }
+        } else {
+          uploadedUrls.push(img)
         }
-
-        const { data: urlData } = supabase.storage
-          .from('product-images')
-          .getPublicUrl(uploadData.path)
-        imageUrl = urlData.publicUrl
-      } else if (!data.main_image || data.main_image === '') {
-        imageUrl = null
       }
 
-      const payload = { ...data, main_image: imageUrl }
+      const mainImage = uploadedUrls[0] ?? null
+      const gallery = uploadedUrls.slice(1)
+
+      const payload = { ...data, main_image: mainImage, gallery }
 
       let res
       if (isEditing && productId) {
@@ -224,15 +234,12 @@ export function ProductForm({ categories, productId, initialData }: ProductFormP
             </div>
 
             <div className="space-y-2">
-              <Label>Image principale <span className="text-xs text-muted-foreground font-normal">(optionnel)</span></Label>
-              <ImageInput
-                value={form.watch('main_image') ?? ''}
-                onChange={(url) => form.setValue('main_image', url)}
-                onFileSelect={(file) => { selectedFileRef.current = file }}
+              <Label>Images du produit <span className="text-xs text-muted-foreground font-normal">(optionnel — la première sera l&apos;image principale)</span></Label>
+              <GalleryInput
+                value={galleryImages}
+                onChange={setGalleryImages}
+                onFilesSelect={(files) => { pendingFilesRef.current = files }}
               />
-              {form.formState.errors.main_image && (
-                <p className="text-sm text-red-500">{form.formState.errors.main_image.message}</p>
-              )}
             </div>
 
             <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/20">

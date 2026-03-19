@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Package, ShoppingCart, Settings, LogOut, Store } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, LogOut, Store } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,6 @@ const NAV_LINKS = [
   { name: 'Tableau de bord', href: '/admin', icon: LayoutDashboard },
   { name: 'Inventaire', href: '/admin/inventory', icon: Package },
   { name: 'Commandes', href: '/admin/orders', icon: ShoppingCart },
-  { name: 'Paramètres', href: '/admin/settings', icon: Settings },
 ]
 
 export function AdminSidebar() {

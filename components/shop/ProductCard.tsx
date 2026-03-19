@@ -43,33 +43,36 @@ export function ProductCard({ product }: { product: any }) {
           <QuickAddButton product={product} />
         </div>
 
-        {/* Badge Nouveauté si featured */}
-        {product.is_featured && (
-          <span className="absolute top-3 left-3 bg-black text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 pointer-events-none">
-            Nouveau
-          </span>
-        )}
+        {/* Badges container */}
+        <div className="absolute top-3 left-3 right-3 flex flex-col items-start gap-1 pointer-events-none">
+          {/* Badge Nouveauté si featured */}
+          {product.is_featured && (
+            <span className="bg-black text-white text-[10px] font-semibold uppercase tracking-widest px-2 py-1 flex items-center h-5">
+              Nouveau
+            </span>
+          )}
 
-        {/* Badge Stock */}
-        {(() => {
-          const variants = product.product_variants || []
-          const totalStock = variants.reduce((acc: number, v: any) => acc + (v.stock_quantity || 0), 0)
-          
-          if (totalStock > 0 && totalStock <= 5) {
-            return (
-              <span className="absolute top-3 right-3 bg-orange-500 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 pointer-events-none shadow-sm">
-                Bientôt épuisé
-              </span>
-            )
-          } else if (variants.length > 0 && totalStock <= 0) {
-            return (
-              <span className="absolute top-3 right-3 bg-red-600 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 pointer-events-none shadow-sm">
-                Rupture
-              </span>
-            )
-          }
-          return null
-        })()}
+          {/* Badge Stock */}
+          {(() => {
+            const variants = product.product_variants || []
+            const totalStock = variants.reduce((acc: number, v: any) => acc + (v.stock_quantity || 0), 0)
+            
+            if (totalStock > 0 && totalStock <= 5) {
+              return (
+                <span className="bg-orange-500 text-white text-[10px] font-semibold uppercase tracking-widest px-2 py-1 shadow-sm flex items-center h-5">
+                  Bientôt épuisé
+                </span>
+              )
+            } else if (variants.length > 0 && totalStock <= 0) {
+              return (
+                <span className="bg-red-600 text-white text-[10px] font-semibold uppercase tracking-widest px-2 py-1 shadow-sm flex items-center h-5">
+                  Rupture
+                </span>
+              )
+            }
+            return null
+          })()}
+        </div>
       </div>
 
       {/* Info Produit */}
